@@ -127,40 +127,75 @@ def run():
 
     # Merge File
 
+    # df = pd.read_excel('order.xlsx')
+
+    df['po'] = df['Purchase Order'].fillna(0).apply(lambda x: '{:.0f}'.format(x).zfill(7))
+    df['bill'] = df['Bill.Doc.'].fillna(0).apply(lambda x: '{:.0f}'.format(x).zfill(10))
+    df['del'] = df['Del. no.'].fillna(0).apply(lambda x: '{:.0f}'.format(x).zfill(10))
+    df['inv'] = df['Inv.list'].fillna(0).apply(lambda x: '{:.0f}'.format(x).zfill(10))
+
     for list_bill in final_list:
+
         merge_list = []
         error_list = []
-        for list_del in list_bill['del']:
-            files = glob.glob(f'doc_del/*{list_del}.pdf')
-            if len(files) == 0 :
-                error_list.append(list_del)
-            else:
-                merge_list+=files
-        for list_inv in list_bill['inv']:
-            files = glob.glob(f'doc_inv/*{list_inv}.pdf')
-            if len(files) == 0 :
-                error_list.append(list_inv)
-            else:
-                merge_list+=files
-        files = glob.glob(f'doc_po/*{list_bill['po']}.pdf')
+        
+        files = glob.glob(f'doc_bill/{list_bill['bill']}.pdf')
         if len(files) == 0 :
-            error_list.append(list_bill['po'])
+            error_list.append(list_bill['bill'])
+            df.loc[df['bill'].astype(str) == list_bill['bill'], 'bill_note'] = 'Not Found'
         else:
             merge_list+=files
+
+        for list_del in list_bill['del']:
+            files = glob.glob(f'doc_del/{list_del}.pdf')
+            # print(files)
+            if len(files) == 0 :
+                print(list_del , 'dont find')
+                error_list.append(list_del)
+                df.loc[df['del'].astype(str) == list_del, 'del_note'] = 'Not Found'
+            else:
+                print(list_del)
+                merge_list+=files
+
+        for list_inv in list_bill['inv']:
+            files = glob.glob(f'doc_inv/{list_inv}.pdf')
+            # print(files)
+            if len(files) == 0 :
+                print(list_inv , 'dont find')
+                error_list.append(list_inv)
+                df.loc[df['inv'].astype(str) == list_inv, 'inv_note'] = 'Not Found'
+            else:
+                print(list_inv)
+                merge_list+=files
+
+        files = glob.glob(f'doc_po/{list_bill['po']}.pdf')
+        if len(files) == 0 :
+            print(list_bill['po'] , 'dont find')
+            error_list.append(list_bill['po'])
+            df.loc[df['po'].astype(str) == list_bill['po'], 'po_note'] = 'Not Found'
+        else:
+            print(list_bill['po'])
+            merge_list+=files
+
         print('merge_list =',merge_list)
         print('error_list =',error_list)
 
-        # สร้างไฟล์ Merge
-
         if len(error_list) == 0 :
+            
             destination_directory = 'merge_files'
+
             if not os.path.exists(destination_directory):
                 os.makedirs(destination_directory)
-            output_file = f'merge_files/{list_bill['bill']}-merge.pdf'
+                
+            output_file = f'merge_files/{list_bill['bill']}-merge.pdf'  # ระบุชื่อไฟล์ที่ต้องการบันทึกผลลัพธ์
             merge_pdfs(merge_list, output_file)
             print('Create',f'merge_files/{list_bill['bill']}-merge.pdf')
         else:
             print(f'{list_bill['bill']} เอกสารไม่ครบ')
+    
+    df = df.drop(columns=['po','bill','del','inv'])
+
+    df.to_excel('output_merge/order-merge.xlsx', index=False)
 
 if __name__ == "__main__":
     
