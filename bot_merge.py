@@ -19,7 +19,7 @@ def merge_pdfs(paths, output):
 def run():
 
     # อ่าน Excel ต้นทาง
-    df = pd.read_excel('downloaded_files/order.xlsx')
+    df = pd.read_excel('order.xlsx')
 
     # ดึงค่า 'Purchase Order','Bill.Doc.'
     

@@ -1,3 +1,3 @@
 @echo off
 
-python bot_01.py
+python bot_merge.py
