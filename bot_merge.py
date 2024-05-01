@@ -19,6 +19,7 @@ def merge_pdfs(paths, output):
 def run():
 
     # อ่าน Excel ต้นทาง
+
     df = pd.read_excel('order.xlsx')
 
     # ดึงค่า 'Purchase Order','Bill.Doc.'
@@ -43,6 +44,7 @@ def run():
         item['bill'] = [str(int(po)) for po in item['bill']]
 
     # ดึงค่า 'Bill.Doc.','Del. no.'
+
     data_dict = df[['Bill.Doc.','Del. no.']].to_dict(orient='records')
     new_data_list_2 = []
     current_main = None
@@ -62,7 +64,6 @@ def run():
         item['bill'] = str(int(item['bill']))
         item['del'] = [str(int(del_no)) for del_no in item['del']]
 
-    
     # ดึงค่า 'Del. no.','Inv.list'
 
     data_dict = df[['Del. no.','Inv.list']].to_dict(orient='records')
