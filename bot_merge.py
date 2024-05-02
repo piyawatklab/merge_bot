@@ -144,15 +144,18 @@ def run():
     df['inv'] = df['Inv.list'].fillna(0).apply(lambda x: '{:.0f}'.format(x).zfill(10))
 
     for list_bill in final_list:
+        print('----------------------------------------------------------------')
 
         merge_list = []
         error_list = []
         
         files = glob.glob(f'doc_bill/{list_bill['bill']}.pdf')
         if len(files) == 0 :
+            print(list_bill['bill'] , 'dont find')
             error_list.append(list_bill['bill'])
             df.loc[df['bill'].astype(str) == list_bill['bill'], 'bill_note'] = 'Not Found'
         else:
+            print(list_bill['bill'])
             merge_list+=files
 
         for list_del in list_bill['del']:
