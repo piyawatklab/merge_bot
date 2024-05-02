@@ -81,7 +81,9 @@ def run():
         new_data_list_3.append({'del': current_main, 'inv': current_sub})
     for item in new_data_list_3:
         item['del'] = str(int(item['del']))
-        item['inv'] = [str(int(inv)) for inv in item['inv']]
+        # item['inv'] = [str(int(inv)) for inv in item['inv']]
+        item['inv'] = [str(int(inv)) if not pd.isna(inv) else inv for inv in item['inv']]
+
     delivery_invoice_dict = {}
     for item in new_data_list_3:
         delivery_invoice_dict[item['del']] = item['inv']
@@ -112,6 +114,13 @@ def run():
             'po': bill_po_dict.get(item['bill'], None)
         }
         final_list.append(final_item)
+    
+    # ตรวจสอบค่า NaN
+
+    for item in final_list:
+        for key, value in item.items():
+            if isinstance(value, list):
+                item[key] = [val for val in value if not pd.isna(val)]
 
     # เติมหลักเอกสาร
 
