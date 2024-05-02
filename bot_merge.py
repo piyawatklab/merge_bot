@@ -207,6 +207,10 @@ def run():
     
     df = df.drop(columns=['po','bill','del','inv'])
 
+    # Save File Output
+
+    if not os.path.exists('output_merge'):
+        os.makedirs('output_merge')
     df.to_excel('output_merge/order-merge.xlsx', index=False)
 
 if __name__ == "__main__":
