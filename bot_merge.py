@@ -62,7 +62,8 @@ def run():
         new_data_list_2.append({'bill': current_main, 'del': current_sub})
     for item in new_data_list_2:
         item['bill'] = str(int(item['bill']))
-        item['del'] = [str(int(del_no)) for del_no in item['del']]
+        # item['del'] = [str(int(del_no)) for del_no in item['del']]
+        item['del'] = [str(int(del_no)) if not pd.isna(del_no) else del_no for del_no in item['del']]
 
     # ดึงค่า 'Del. no.','Inv.list'
 
@@ -189,8 +190,8 @@ def run():
             print(list_bill['po'])
             merge_list+=files
 
-        print('merge_list =',merge_list)
-        print('error_list =',error_list)
+        # print('merge_list =',merge_list)
+        # print('error_list =',error_list)
 
         if len(error_list) == 0 :
             
