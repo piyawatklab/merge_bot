@@ -9,6 +9,11 @@ from PyPDF2 import PdfMerger
 
 import math
 
+doc_bill_path = r'C:\Users\bobby\OneDrive\Desktop\MyProject\merge_pdf_bot\ex_folder\doc_bill'
+doc_del_path = r'C:\Users\bobby\OneDrive\Desktop\MyProject\merge_pdf_bot\ex_folder\doc_del'
+doc_inv_path = r'C:\Users\bobby\OneDrive\Desktop\MyProject\merge_pdf_bot\ex_folder\doc_inv'
+doc_po_path = r'C:\Users\bobby\OneDrive\Desktop\MyProject\merge_pdf_bot\ex_folder\doc_po'
+
 def merge_pdfs(paths, output):
     merger = PdfMerger()
     for path in paths:
@@ -19,7 +24,6 @@ def merge_pdfs(paths, output):
 def run():
 
     # อ่าน Excel ต้นทาง
-
     df = pd.read_excel('order.xlsx')
 
     # ดึงค่า 'Purchase Order','Bill.Doc.'
@@ -150,7 +154,7 @@ def run():
         merge_list = []
         error_list = []
         
-        files = glob.glob(f'doc_bill/{list_bill['bill']}.pdf')
+        files = glob.glob(f'{doc_bill_path}\{list_bill['bill']}.pdf')
         if len(files) == 0 :
             print(list_bill['bill'] , 'dont find')
             error_list.append(list_bill['bill'])
@@ -160,7 +164,7 @@ def run():
             merge_list+=files
 
         for list_del in list_bill['del']:
-            files = glob.glob(f'doc_del/{list_del}.pdf')
+            files = glob.glob(f'{doc_del_path}\{list_del}.pdf')
             # print(files)
             if len(files) == 0 :
                 print(list_del , 'dont find')
@@ -171,7 +175,7 @@ def run():
                 merge_list+=files
 
         for list_inv in list_bill['inv']:
-            files = glob.glob(f'doc_inv/{list_inv}.pdf')
+            files = glob.glob(f'{doc_inv_path}\{list_inv}.pdf')
             # print(files)
             if len(files) == 0 :
                 print(list_inv , 'dont find')
@@ -181,7 +185,7 @@ def run():
                 print(list_inv)
                 merge_list+=files
 
-        files = glob.glob(f'doc_po/{list_bill['po']}.pdf')
+        files = glob.glob(f'{doc_po_path}\{list_bill['po']}.pdf')
         if len(files) == 0 :
             print(list_bill['po'] , 'dont find')
             error_list.append(list_bill['po'])
