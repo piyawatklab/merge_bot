@@ -24,18 +24,20 @@ def merge_pdfs(paths, output):
 def run():
 
     # อ่าน Excel ต้นทาง
-    df = pd.read_excel('order.xlsx')
+
+    df = pd.read_excel('order.xlsx', dtype=str)
 
     # ดึงค่า 'Purchase Order','Bill.Doc.'
     
     data_dict = df[['Purchase Order','Bill.Doc.']].to_dict(orient='records')
+    print(data_dict)
     new_data_list_1 = []
     current_main = None
     current_sub = []
     for item in data_dict:
-        if math.isnan(item['Purchase Order']) and math.isnan(item['Bill.Doc.']) :
+        if pd.isna(item['Purchase Order']) and pd.isna(item['Bill.Doc.']) :
             continue      
-        if not math.isnan(item['Purchase Order']):
+        if not pd.isna(item['Purchase Order']):
             if current_main is not None:
                 new_data_list_1.append({'po': current_main, 'bill': current_sub})
                 current_sub = []
@@ -44,8 +46,10 @@ def run():
     if current_main is not None:
         new_data_list_1.append({'po': current_main, 'bill': current_sub})
     for item in new_data_list_1:
-        item['po'] = str(int(item['po']))
-        item['bill'] = [str(int(po)) for po in item['bill']]
+        # item['po'] = str(int(item['po']))
+        item['po'] = item['po']
+        # item['bill'] = [str(int(po)) for po in item['bill']]
+        item['bill'] = [po for po in item['bill']]
 
     # ดึงค่า 'Bill.Doc.','Del. no.'
 
@@ -54,9 +58,9 @@ def run():
     current_main = None
     current_sub = []
     for item in data_dict:
-        if math.isnan(item['Bill.Doc.']) and math.isnan(item['Del. no.']) :
+        if pd.isna(item['Bill.Doc.']) and pd.isna(item['Del. no.']) :
             continue     
-        if not math.isnan(item['Bill.Doc.']):
+        if not pd.isna(item['Bill.Doc.']):
             if current_main is not None:
                 new_data_list_2.append({'bill': current_main, 'del': current_sub})
                 current_sub = []
@@ -65,9 +69,9 @@ def run():
     if current_main is not None:
         new_data_list_2.append({'bill': current_main, 'del': current_sub})
     for item in new_data_list_2:
-        item['bill'] = str(int(item['bill']))
-        # item['del'] = [str(int(del_no)) for del_no in item['del']]
-        item['del'] = [str(int(del_no)) if not pd.isna(del_no) else del_no for del_no in item['del']]
+        # item['bill'] = str(int(item['bill']))
+        item['bill'] = item['bill']
+        item['del'] = [del_no if not pd.isna(del_no) else del_no for del_no in item['del']]
 
     # ดึงค่า 'Del. no.','Inv.list'
 
@@ -76,7 +80,7 @@ def run():
     current_main = None
     current_sub = []
     for item in data_dict:
-        if not math.isnan(item['Del. no.']):
+        if not pd.isna(item['Del. no.']):
             if current_main is not None:
                 new_data_list_3.append({'del': current_main, 'inv': current_sub})
                 current_sub = []
@@ -85,9 +89,10 @@ def run():
     if current_main is not None:
         new_data_list_3.append({'del': current_main, 'inv': current_sub})
     for item in new_data_list_3:
-        item['del'] = str(int(item['del']))
+        # item['del'] = str(int(item['del']))
+        item['del'] = item['del']
         # item['inv'] = [str(int(inv)) for inv in item['inv']]
-        item['inv'] = [str(int(inv)) if not pd.isna(inv) else inv for inv in item['inv']]
+        item['inv'] = [inv if not pd.isna(inv) else inv for inv in item['inv']]
 
     delivery_invoice_dict = {}
     for item in new_data_list_3:
@@ -129,24 +134,22 @@ def run():
 
     # เติมหลักเอกสาร
 
-    for item in final_list:
-        item['po'] = item['po'].zfill(7)
-        item['bill'] = item['bill'].zfill(10)
-        for i in range(len(item['del'])):
-            item['del'][i] = item['del'][i].zfill(10)
-        for i in range(len(item['inv'])):
-            item['inv'][i] = item['inv'][i].zfill(10)
+    # for item in final_list:
+    #     item['po'] = item['po'].zfill(7)
+    #     item['bill'] = item['bill'].zfill(10)
+    #     for i in range(len(item['del'])):
+    #         item['del'][i] = item['del'][i].zfill(10)
+    #     for i in range(len(item['inv'])):
+    #         item['inv'][i] = item['inv'][i].zfill(10)
         
     print('final_list =',final_list)
 
     # Merge File
-
-    # df = pd.read_excel('order.xlsx')
-
-    df['po'] = df['Purchase Order'].fillna(0).apply(lambda x: '{:.0f}'.format(x).zfill(7))
-    df['bill'] = df['Bill.Doc.'].fillna(0).apply(lambda x: '{:.0f}'.format(x).zfill(10))
-    df['del'] = df['Del. no.'].fillna(0).apply(lambda x: '{:.0f}'.format(x).zfill(10))
-    df['inv'] = df['Inv.list'].fillna(0).apply(lambda x: '{:.0f}'.format(x).zfill(10))
+    
+    # df['po'] = df['Purchase Order'].fillna(0).apply(lambda x: '{:.0f}'.format(x).zfill(7))
+    # df['bill'] = df['Bill.Doc.'].fillna(0).apply(lambda x: '{:.0f}'.format(x).zfill(10))
+    # df['del'] = df['Del. no.'].fillna(0).apply(lambda x: '{:.0f}'.format(x).zfill(10))
+    # df['inv'] = df['Inv.list'].fillna(0).apply(lambda x: '{:.0f}'.format(x).zfill(10))
 
     for list_bill in final_list:
         print('----------------------------------------------------------------')
@@ -156,42 +159,42 @@ def run():
         
         files = glob.glob(f'{doc_bill_path}\{list_bill['bill']}.pdf')
         if len(files) == 0 :
-            print(list_bill['bill'] , 'dont find')
+            print('Bill.Doc. :',list_bill['bill'] , 'dont find')
             error_list.append(list_bill['bill'])
-            df.loc[df['bill'].astype(str) == list_bill['bill'], 'bill_note'] = 'Not Found'
+            df.loc[df['Bill.Doc.'] == list_bill['bill'], 'bill_note'] = 'Not Found'
         else:
-            print(list_bill['bill'])
+            print('Bill.Doc. :',list_bill['bill'])
             merge_list+=files
 
         for list_del in list_bill['del']:
             files = glob.glob(f'{doc_del_path}\{list_del}.pdf')
             # print(files)
             if len(files) == 0 :
-                print(list_del , 'dont find')
+                print('Del. no. :',list_del , 'dont find')
                 error_list.append(list_del)
-                df.loc[df['del'].astype(str) == list_del, 'del_note'] = 'Not Found'
+                df.loc[df['Del. no.'] == list_del, 'del_note'] = 'Not Found'
             else:
-                print(list_del)
+                print('Del. no. :',list_del)
                 merge_list+=files
 
         for list_inv in list_bill['inv']:
             files = glob.glob(f'{doc_inv_path}\{list_inv}.pdf')
             # print(files)
             if len(files) == 0 :
-                print(list_inv , 'dont find')
+                print('Inv.list :',list_inv , 'dont find')
                 error_list.append(list_inv)
-                df.loc[df['inv'].astype(str) == list_inv, 'inv_note'] = 'Not Found'
+                df.loc[df['Inv.list'] == list_inv, 'inv_note'] = 'Not Found'
             else:
-                print(list_inv)
+                print('Inv.list :',list_inv)
                 merge_list+=files
 
         files = glob.glob(f'{doc_po_path}\{list_bill['po']}.pdf')
         if len(files) == 0 :
-            print(list_bill['po'] , 'dont find')
+            print('Purchase Order :',list_bill['po'] , 'dont find')
             error_list.append(list_bill['po'])
-            df.loc[df['po'].astype(str) == list_bill['po'], 'po_note'] = 'Not Found'
+            df.loc[df['Purchase Order'] == list_bill['po'], 'po_note'] = 'Not Found'
         else:
-            print(list_bill['po'])
+            print('Purchase Order :',list_bill['po'])
             merge_list+=files
 
         # print('merge_list =',merge_list)
@@ -208,9 +211,9 @@ def run():
             merge_pdfs(merge_list, output_file)
             print('Create',f'merge_files/{list_bill['bill']}-merge.pdf')
         else:
-            print(f'{list_bill['bill']} เอกสารไม่ครบ')
+            print(f'Bill.Doc. : {list_bill['bill']} เอกสารไม่ครบ')
     
-    df = df.drop(columns=['po','bill','del','inv'])
+    # df = df.drop(columns=['po','bill','del','inv'])
 
     # Save File Output
 
